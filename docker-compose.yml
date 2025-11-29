@@ -1,0 +1,99 @@
+version: "3.8"
+services:
+  # Postgres for Airflow metadata
+  postgres_airflow:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - postgres_airflow_data:/var/lib/postgresql/data
+    networks:
+      - mlbnet
+
+  # Postgres for your MLB data
+  postgres_data:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: mlb_user
+      POSTGRES_PASSWORD: mlb_pass
+      POSTGRES_DB: mlb_db
+    ports:
+      - "5432:5432"   # maps container's postgres to host: allows local psql/pgadmin to connect directly
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - mlbnet
+
+  # pgAdmin for browsing the data Postgres DB
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: postgres@postgres.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    networks:
+      - mlbnet
+
+  # Airflow: webserver + scheduler in a single container (LocalExecutor)
+  airflow:
+    image: apache/airflow:2.7.1
+    # Use same user id mapping to avoid root permission issues (optional)
+    environment:
+      # Airflow DB points to postgres_airflow container
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres_airflow:5432/airflow
+      AIRFLOW__CORE__FERNET_KEY: "Z0xvY2FsQ2hvcGUzMjE1MjM0NQ=="  # example, replace if you like
+      AIRFLOW__WEBSERVER__WORKERS: "1"
+      AIRFLOW__API__AUTH_BACKENDS: "airflow.api.auth.backend.basic_auth"
+    depends_on:
+      - postgres_airflow
+      - postgres_data
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./scripts:/opt/airflow/scripts
+      - ./tmp:/opt/airflow/tmp
+      - ./logs:/opt/airflow/logs
+    ports:
+      - "8080:8080"
+    entrypoint: >
+      bash -c "
+      airflow db upgrade &&
+      airflow users create --username admin --firstname Admin --lastname User --role Admin --email admin@local --password admin || true &&
+      exec airflow webserver
+      "
+    networks:
+      - mlbnet
+
+  # A scheduler container so scheduling & task running happens (separate container)
+  scheduler:
+    image: apache/airflow:2.7.1
+    depends_on:
+      - airflow
+      - postgres_airflow
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres_airflow:5432/airflow
+      AIRFLOW__CORE__FERNET_KEY: "Z0xvY2FsQ2hvcGUzMjE1MjM0NQ=="
+      AIRFLOW__WEBSERVER__WORKERS: "1"
+      AIRFLOW__API__AUTH_BACKENDS: "airflow.api.auth.backend.basic_auth"
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./scripts:/opt/airflow/scripts
+      - ./tmp:/opt/airflow/tmp
+      - ./logs:/opt/airflow/logs
+    entrypoint: bash -c "airflow scheduler"
+    networks:
+      - mlbnet
+
+volumes:
+  postgres_airflow_data:
+  postgres_data:
+  pgadmin-data:
+
+networks:
+  mlbnet:
