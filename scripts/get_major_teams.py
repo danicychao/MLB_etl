@@ -3,6 +3,9 @@ import json
 import argparse
 
 
+from utils import json_handling
+
+
 def get_teams_from_file(infile):
     with open(infile, encoding="utf-8") as fh:
         j = json.load(fh)
@@ -45,13 +48,6 @@ def get_teams_from_file(infile):
     return rows
 
 
-def save_clean_jsonl(rows, filename):
-    with open(filename, "w", encoding="utf-8") as f:
-        for r in rows:
-            json.dump(r, f)
-            f.write("\n")
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--year", type=int, help="Year to extract")
@@ -64,8 +60,6 @@ if __name__ == "__main__":
     clean_file = os.path.join(args.out_dir, f"teams_{args.year}_clean.jsonl") 
 
     rows = get_teams_from_file(raw_file)
-    save_clean_jsonl(rows, clean_file)
-
-    print(f"Write {len(rows)} cleaned rows to {clean_file}")
+    json_handling.save_clean_jsonl(rows, clean_file)
 
     

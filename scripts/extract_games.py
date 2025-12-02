@@ -1,23 +1,7 @@
-import requests
 import os
-import json
 import argparse
+from utils import url_request, json_handling
 from datetime import date
-
-
-BASE = "https://statsapi.mlb.com/api/v1"
-
-
-def get_games(date):
-    url = f"{BASE}/schedule?sportId=1&date={date}"
-    r = requests.get(url, timeout=10)
-    r.raise_for_status()
-    return r.json()
-
-
-def save_raw(obj, filename):
-    with open(filename, "w", encoding="utf-8") as f:
-        json.dump(obj, f, ensure_ascii=False, indent=2)
 
 
 if __name__ == "__main__":
@@ -27,6 +11,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    games = get_games(args.date)
+    games = url_request.get_games(args.date)
     game_file = os.path.join(args.out_dir, f"games_{args.date}.json")
-    save_raw(games, game_file)
+    json_handling.save_json(games, game_file)

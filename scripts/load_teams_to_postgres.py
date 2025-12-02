@@ -1,6 +1,8 @@
 import os
-import json
+
 import argparse
+from utils import json_handling
+
 import psycopg2
 from psycopg2.extras import execute_values
 
@@ -30,19 +32,6 @@ def create_table(conn):
     );
     """)
     conn.commit()
-
-
-def read_jsonl(filename):
-    rows = []
-    if not os.path.exists(filename):
-        print("No input file:", filename)
-        return rows
-
-    with open(filename, "r", encoding="utf-8") as fh:
-        for line in fh:
-            if line.strip():
-                rows.append(json.loads(line))
-    return rows
 
 
 def upsert_rows(conn, rows):
@@ -84,8 +73,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     input_clean_file = os.path.join(args.in_dir, f"teams_{args.year}_clean.jsonl") 
-    rows = read_jsonl(input_clean_file)
-    print(f"Read {len(rows)} rows from {input_clean_file}")
+    rows = json_handling.read_jsonl(input_clean_file)
 
     conn = psycopg2.connect(
         host=DB_HOST, dbname=DB_NAME, user=DB_USER, password=DB_PASS, port=DB_PORT
