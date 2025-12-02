@@ -58,6 +58,7 @@ services:
       - ./scripts:/opt/airflow/scripts
       - ./tmp:/opt/airflow/tmp
       - ./logs:/opt/airflow/logs
+      - ./utils:/opt/airflow/utils
     ports:
       - "8080:8080"
     entrypoint: >
@@ -86,6 +87,7 @@ services:
       - ./scripts:/opt/airflow/scripts
       - ./tmp:/opt/airflow/tmp
       - ./logs:/opt/airflow/logs
+      - ./utils:/opt/airflow/utils
     entrypoint: bash -c "airflow scheduler"
     networks:
       - mlbnet

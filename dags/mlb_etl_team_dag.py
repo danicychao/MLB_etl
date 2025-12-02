@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.bash import BashOperator
 
-year = 2017
+year = 2011
 main_dir = "/opt/airflow"
 
 DEFAULT_ARGS = {
@@ -33,16 +33,19 @@ with dag:
             rm -r {{ params.main_dir }}/tmp || true &&
             mkdir -p {{ params.main_dir }}/tmp &&
             mkdir -p {{ params.main_dir }}/tmp/raw &&
-            python {{ params.main_dir }}/scripts/extract_teams.py {{ params.main_dir }}/tmp/raw --year {{ params.year }}
+            python {{params.main_dir}}/scripts/extract_teams.py {{params.main_dir}}/tmp/raw --year {{params.year}}
         """,
         params={
             "year": year,
             "main_dir": main_dir,
         },
+        env={
+        "PYTHONPATH": main_dir,
+        }
     )
 
 
-    ## get major team information
+    # get major team information
     transform = BashOperator(
         task_id="get_major_teams",
         bash_command="""
@@ -55,6 +58,9 @@ with dag:
             "year": year,
             "main_dir": main_dir,
         },
+        env={
+            "PYTHONPATH": main_dir,
+        }
     )
 
 
@@ -77,6 +83,7 @@ with dag:
             "DATA_DB_USER": "mlb_user",
             "DATA_DB_PASS": "mlb_pass",
             "DATA_DB_NAME": "mlb_db",
+            "PYTHONPATH": main_dir,
         }
     )
 
