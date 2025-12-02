@@ -5,10 +5,6 @@ from datetime import date
 
 
 def get_game_id(filename):
-    if not os.path.exists(filename):
-        print(f"Warning: File not found: {filename}")
-        return []
-
     rows = json_handling.read_jsonl(filename)
     if not rows:
         print(f"Warning: Empty file: {filename}")
