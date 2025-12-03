@@ -1,7 +1,7 @@
 CREATE TABLE game_details_batter (
 	game_id INTEGER,
 	game_date DATE,
-	team_id INTEGER,
+	team_id TEXT,
 	batter_id INTEGER,
 	batter_name TEXT,
 	at_bat INTEGER,
