@@ -34,7 +34,7 @@ def get_team_id(player_id, team_player_ids):
         return team_player_ids["home_team_id"]
 
     if player_id in team_player_ids["away_player_ids"]:
-        return team_player_ids["home_team_id"]
+        return team_player_ids["away_team_id"]
 
     return None
 
