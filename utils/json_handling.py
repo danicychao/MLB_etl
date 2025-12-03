@@ -39,5 +39,4 @@ def read_jsonl(filename):
             if line.strip():
                 rows.append(json.loads(line))
 
-    print(f"Read {len(rows)} rows from {filename}")
     return rows
