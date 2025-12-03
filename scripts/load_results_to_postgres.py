@@ -64,6 +64,7 @@ if __name__ == "__main__":
 
     input_clean_file = os.path.join(args.in_dir, f"games_{args.date}_clean.jsonl")
     rows = json_handling.read_jsonl(input_clean_file)
+    print(f"Read {len(rows)} rows from {input_clean_file}")
 
     conn = psycopg2.connect(
         host=DB_HOST, dbname=DB_NAME, user=DB_USER, password=DB_PASS, port=DB_PORT
