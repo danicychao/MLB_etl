@@ -25,7 +25,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("date", type=date.fromisoformat, help="Date to extract (YYYY-MM-DD)")
     parser.add_argument("clean_dir", type=str, help="Directory with clean game results")
-    parser.add_argument("detail_dir", type=str, help="Directory of game details")
+    parser.add_argument("detail_dir", type=str, help="Directory of raw game details")
 
     args = parser.parse_args()
 
