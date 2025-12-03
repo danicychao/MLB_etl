@@ -16,9 +16,16 @@ def get_games(date):
     r.raise_for_status()
     return r.json()
 
+
 def get_play_by_play(game_id):
     url = f"{BASE}/game/{game_id}/playByPlay"
     r = requests.get(url, timeout=10)
     r.raise_for_status()
     return r.json()
 
+
+def get_boxscore(game_id):
+    url = f"{BASE}/game/{game_id}/boxscore"
+    r = requests.get(url, timeout=10)
+    r.raise_for_status()
+    return r.json()
