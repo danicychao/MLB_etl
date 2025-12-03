@@ -120,7 +120,6 @@ if __name__ == "__main__":
         host=DB_HOST, dbname=DB_NAME, user=DB_USER, password=DB_PASS, port=DB_PORT
     )
 
-    # create_table(conn)
     upsert_rows(conn, rows)
     conn.close()
     print("Done loading to Postgres.")
