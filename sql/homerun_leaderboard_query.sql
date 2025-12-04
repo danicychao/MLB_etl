@@ -14,3 +14,4 @@ hr.batter_name as batter_name,
 hr.home_runs as home_runs
 FROM home_run_leaders as hr LEFT JOIN teams as t
 ON CAST(hr.team_id AS INTEGER) = t.id
+WHERE t.season = 2025
