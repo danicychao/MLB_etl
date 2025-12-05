@@ -18,8 +18,6 @@ Among many TODOs, the following have higher priority:
 - Create the flow for pitcher performance
   (Currently, only batter performance is available.)
 
-- Set up configuration file or Airflow plugins to avoid editing DAG files
-  (Unfortunately, we have to hard-coding a little bit, very tiny bit, at the moment.)
 
 ## Usage
 ### Docker
@@ -40,9 +38,14 @@ For running the ETL pipelines or accessing the tables of the extracted MLB datas
 - Log in to Airflow (http://localhost:8080) with the ***username and password under airflow: entrypoint:*** in `docker-compose.yml`
 
 ### Flow DAG
-- `mlb_etl_team_pipeline` should run annually before the season starts, as the team information might change every season but rarely change during the season. (Temporarily, one need to go inside `mlb_etl_team_dag.py` to change the year of season.)
+- Before the very first time you run the pipelines on the Airflow UI. Add `season_year` and `game_date` in **Variables** under **Admin**.
+  One can set 2025 and 2025-03-18, respectively, as the default values.
+
+- `mlb_etl_team_pipeline` should run annually before the season starts, as the team information might change every season but rarely change during the season.
+  Change the year of season on the Airflow UI: **Admin** -> **Variables** -> `season_year`.
 
 - Both `mlb_etl_results_pipeline` and `mlb_etl_gamedetails_pipeline` should run daily during the season to update the game results and player performance.
 
-- `mlb_etl_results_pipeline` should run before `mlb_etl_gamedetails_pipeline`. (Temporarily, one need to go inside `daily_mlb_results_etl_dag.py` and `daily_mlb_game_details_etl_dag.py` to change the dates of games.)
+- `mlb_etl_results_pipeline` should run before `mlb_etl_gamedetails_pipeline`.
+  Change game date on the Airflow UI: **Admin** -> ***Variables* -> `game_date`.
 
