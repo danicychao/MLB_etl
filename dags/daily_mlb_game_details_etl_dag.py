@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.bash import BashOperator
 
-date = "2025-04-21"
+
 main_dir = "/opt/airflow"
 raw_dir = f"{main_dir}/tmp/raw"
 clean_dir = f"{main_dir}/tmp/clean"
@@ -34,10 +34,9 @@ with dag:
             echo "extracting today's plays..." &&
             rm -r {{ params.raw_dir }}/detail || true &&
             mkdir -p {{ params.raw_dir }}/detail &&
-            python {{ params.main_dir }}/scripts/extract_game_details.py {{ params.date }} {{ params.clean_dir }} {{ params.raw_dir }}/detail
+            python {{ params.main_dir }}/scripts/extract_game_details.py {{ var.value.game_date }} {{ params.clean_dir }} {{ params.raw_dir }}/detail
         """,
         params={
-            "date": date,
             "main_dir": main_dir,
             "raw_dir": raw_dir,
             "clean_dir": clean_dir,
@@ -56,10 +55,9 @@ with dag:
             echo "get all plays..." &&
             rm -r {{ params.clean_dir }}/detail || true &&
             mkdir -p {{ params.clean_dir }}/detail &&
-            python {{ params.main_dir }}/scripts/get_batter_detail.py {{ params.date }} {{ params.raw_dir }}/detail {{ params.clean_dir }}/detail
+            python {{ params.main_dir }}/scripts/get_batter_detail.py {{ var.value.game_date }} {{ params.raw_dir }}/detail {{ params.clean_dir }}/detail
         """,
         params={
-            "date": date,
             "main_dir": main_dir,
             "raw_dir": raw_dir,
             "clean_dir": clean_dir,
@@ -76,10 +74,9 @@ with dag:
         bash_command="""
                 set -euo pipefail &&
                 echo "get team ids..." &&
-                python {{ params.main_dir }}/scripts/merge_batter_team.py {{ params.date }} {{ params.clean_dir }}/detail
+                python {{ params.main_dir }}/scripts/merge_batter_team.py {{ var.value.game_date }} {{ params.clean_dir }}/detail
             """,
         params={
-            "date": date,
             "main_dir": main_dir,
             "clean_dir": clean_dir,
         },
@@ -94,10 +91,9 @@ with dag:
         bash_command="""
             set -euo pipefail &&
             echo "load game details to table..." &&
-            python {{ params.main_dir }}/scripts/load_game_details_to_postgres.py {{ params.date }} {{ params.clean_dir }}/detail
+            python {{ params.main_dir }}/scripts/load_game_details_to_postgres.py {{ var.value.game_date }} {{ params.clean_dir }}/detail
         """,
         params={
-            "date": date,
             "main_dir": main_dir,
             "clean_dir": clean_dir,
         },

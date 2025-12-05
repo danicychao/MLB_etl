@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.bash import BashOperator
 
-date = "2025-04-21"
+
 main_dir = "/opt/airflow"
 
 DEFAULT_ARGS = {
@@ -24,7 +24,7 @@ dag = DAG(
 )
 with dag:
 
-    ## run extract_teams.py to get team information
+    ## run extract_games.py to get games on that date
     extract = BashOperator(
         task_id="extract_games",
         bash_command="""
@@ -33,10 +33,9 @@ with dag:
             rm -r {{ params.main_dir }}/tmp || true &&
             mkdir -p {{ params.main_dir }}/tmp &&
             mkdir -p {{ params.main_dir }}/tmp/raw &&
-            python {{ params.main_dir }}/scripts/extract_games.py {{ params.date }} {{ params.main_dir }}/tmp/raw
+            python {{ params.main_dir }}/scripts/extract_games.py {{ var.value.game_date }} {{ params.main_dir }}/tmp/raw
         """,
         params={
-            "date": date,
             "main_dir": main_dir,
         },
         env={
@@ -45,17 +44,16 @@ with dag:
     )
 
 
-    ## get major team information
+    ## get game results
     transform = BashOperator(
         task_id="get_game_results",
         bash_command="""
             set -euo pipefail &&
             echo "get game results..." &&
             mkdir -p {{ params.main_dir }}/tmp/clean &&
-            python {{ params.main_dir }}/scripts/get_game_results.py {{ params.date }} {{ params.main_dir }}/tmp/raw {{ params.main_dir }}/tmp/clean
+            python {{ params.main_dir }}/scripts/get_game_results.py {{ var.value.game_date }} {{ params.main_dir }}/tmp/raw {{ params.main_dir }}/tmp/clean
         """,
         params={
-            "date": date,
             "main_dir": main_dir,
         },
         env={
@@ -64,16 +62,15 @@ with dag:
     )
 
 
-    ## load major team information into table
+    ## load game results into table
     load = BashOperator(
         task_id="load_results_to_table",
         bash_command="""
             set -euo pipefail &&
             echo "load game results to table..." &&
-            python {{ params.main_dir }}/scripts/load_results_to_postgres.py {{ params.date }} {{ params.main_dir }}/tmp/clean
+            python {{ params.main_dir }}/scripts/load_results_to_postgres.py {{ var.value.game_date }} {{ params.main_dir }}/tmp/clean
         """,
         params={
-            "date": date,
             "main_dir": main_dir,
         },
 

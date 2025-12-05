@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.bash import BashOperator
 
-year = 2011
+
 main_dir = "/opt/airflow"
 
 DEFAULT_ARGS = {
@@ -33,10 +33,9 @@ with dag:
             rm -r {{ params.main_dir }}/tmp || true &&
             mkdir -p {{ params.main_dir }}/tmp &&
             mkdir -p {{ params.main_dir }}/tmp/raw &&
-            python {{params.main_dir}}/scripts/extract_teams.py {{params.main_dir}}/tmp/raw --year {{params.year}}
+            python {{ params.main_dir }}/scripts/extract_teams.py {{ params.main_dir }}/tmp/raw --year {{ var.value.season_year }}
         """,
         params={
-            "year": year,
             "main_dir": main_dir,
         },
         env={
@@ -52,10 +51,9 @@ with dag:
             set -euo pipefail &&
             echo "get major team information..." &&
             mkdir -p {{ params.main_dir }}/tmp/clean &&
-            python {{ params.main_dir }}/scripts/get_major_teams.py {{ params.main_dir }}/tmp/raw {{ params.main_dir }}/tmp/clean --year {{ params.year }}
+            python {{ params.main_dir }}/scripts/get_major_teams.py {{ params.main_dir }}/tmp/raw {{ params.main_dir }}/tmp/clean --year {{ var.value.season_year }}
         """,
         params={
-            "year": year,
             "main_dir": main_dir,
         },
         env={
@@ -70,10 +68,9 @@ with dag:
         bash_command="""
             set -euo pipefail &&
             echo "load teams to table..." &&
-            python {{ params.main_dir }}/scripts/load_teams_to_postgres.py {{ params.main_dir }}/tmp/clean --year {{ params.year }}
+            python {{ params.main_dir }}/scripts/load_teams_to_postgres.py {{ params.main_dir }}/tmp/clean --year {{ var.value.season_year }}
         """,
         params={
-            "year": year,
             "main_dir": main_dir,
         },
 

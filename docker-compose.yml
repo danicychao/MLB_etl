@@ -47,7 +47,7 @@ services:
       # Airflow DB points to postgres_airflow container
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres_airflow:5432/airflow
-      AIRFLOW__CORE__FERNET_KEY: "Z0xvY2FsQ2hvcGUzMjE1MjM0NQ=="  # example, replace if you like
+      AIRFLOW__CORE__FERNET_KEY: "QdQjkpc6UVbyCMymeZMjhy0ON0Lcrnv8t_QrnvAloaw="  # Everyone has different Fernet Key.
       AIRFLOW__WEBSERVER__WORKERS: "1"
       AIRFLOW__API__AUTH_BACKENDS: "airflow.api.auth.backend.basic_auth"
     depends_on:
@@ -79,7 +79,7 @@ services:
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres_airflow:5432/airflow
-      AIRFLOW__CORE__FERNET_KEY: "Z0xvY2FsQ2hvcGUzMjE1MjM0NQ=="
+      AIRFLOW__CORE__FERNET_KEY: "QdQjkpc6UVbyCMymeZMjhy0ON0Lcrnv8t_QrnvAloaw="
       AIRFLOW__WEBSERVER__WORKERS: "1"
       AIRFLOW__API__AUTH_BACKENDS: "airflow.api.auth.backend.basic_auth"
     volumes:
